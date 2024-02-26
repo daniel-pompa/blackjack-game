@@ -7,6 +7,10 @@ let dealerHand = []; // Initialize an empty array to hold dealer's hand
 let playerScore = 0; // Initialize player's score to 0
 let dealerScore = 0; // Initialize dealer's score to 0
 
+//* HTML references
+const scoresHTML = document.querySelectorAll('span');
+const drawCardButton = document.querySelector('#draw-card-button');
+
 //* Functions
 // Start the game by creating a deck of cards and dealing initial cards to player and dealer
 const startGame = () => {
@@ -14,7 +18,6 @@ const startGame = () => {
   createDeck();
   // Call the function to deal initial cards to player and dealer
   dealInitialCards();
-  drawCard();
 };
 
 /**
@@ -69,10 +72,9 @@ const dealInitialCards = () => {
   // Calculate the score of player and dealer hands
   playerScore = calculateHandScore(playerHand);
   dealerScore = calculateHandScore(dealerHand);
-  // TODO - Add code to display the scores on the UI
-  // Display the player's score in the console
-  console.log(`Puntuación del jugador: ${playerScore}`);
-  console.log(`Puntuación del crupier: ${dealerScore}`);
+  // Display the scores on the UI
+  scoresHTML[0].innerText = playerScore;
+  scoresHTML[1].innerText = dealerScore;
 };
 
 /**
@@ -131,11 +133,22 @@ const drawCard = () => {
     throw new Error('No hay cartas en la baraja');
   }
   const card = deck.pop();
-  playerHand.push(card);
-  console.log(`Carta del jugador: ${card}`);
-  console.log(`Mano del jugador: ${playerHand}`);
-  console.log(`Puntuación del jugador: ${calculateHandScore(playerHand)}`);
-  return card;
+  return card; // Return the drawn card
 };
+
+//* Events
+// Event listener for the draw card button
+drawCardButton.addEventListener('click', () => {
+  // Draw a card from the deck
+  const card = drawCard();
+  // Log the drawn card to the console
+  console.log(card);
+  // Add the drawn card to the player's hand
+  playerHand.push(card);
+  // Calculate the player's score based on the current hand
+  playerScore = calculateHandScore(playerHand);
+  // Update the player's score display on the UI
+  scoresHTML[0].innerText = playerScore;
+});
 
 startGame();
