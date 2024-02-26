@@ -10,6 +10,7 @@ let dealerScore = 0; // Initialize dealer's score to 0
 //* HTML references
 const scoresHTML = document.querySelectorAll('span');
 const drawCardButton = document.querySelector('#draw-card-button');
+const cardsContainerHTML = document.querySelectorAll('.cards-container');
 
 //* Functions
 // Start the game by creating a deck of cards and dealing initial cards to player and dealer
@@ -61,20 +62,16 @@ const shuffleDeck = deck => {
 const dealInitialCards = () => {
   // Deal 2 cards to the player and the dealer
   for (let i = 0; i < 2; i++) {
-    playerHand.push(deck.pop());
-    dealerHand.push(deck.pop());
+    playerHand.push(deck.pop()); // Add a card from the deck to the player's hand
+    dealerHand.push(deck.pop()); // Add a card from the deck to the dealer's hand
   }
-  // TODO - Add code to display the cards on the UI
-  // Display the player's hand in the console
-  console.log(`Mano del jugador: ${playerHand}`);
-  // Display the dealer's hand in the console
-  console.log(`Mano del crupier: ${dealerHand}`);
-  // Calculate the score of player and dealer hands
-  playerScore = calculateHandScore(playerHand);
-  dealerScore = calculateHandScore(dealerHand);
-  // Display the scores on the UI
-  scoresHTML[0].innerText = playerScore;
-  scoresHTML[1].innerText = dealerScore;
+
+  renderInitialCardImages(playerHand, dealerHand); // Call the function to render initial card images
+  playerScore = calculateHandScore(playerHand); // Calculate the score of the player's hand
+  dealerScore = calculateHandScore(dealerHand); // Calculate the score of the dealer's hand
+
+  scoresHTML[0].innerText = playerScore; // Display player's score on the UI
+  scoresHTML[1].innerText = dealerScore; // Display dealer's score on the UI
 };
 
 /**
@@ -136,19 +133,47 @@ const drawCard = () => {
   return card; // Return the drawn card
 };
 
+/**
+ * Renders the initial card images for the player and dealer
+ * @param {Array} playerHand - An array containing the initial cards of the player
+ * @param {Array} dealerHand - An array containing the initial cards of the dealer
+ */
+const renderInitialCardImages = (playerHand, dealerHand) => {
+  renderHand(playerHand, cardsContainerHTML[0]); // Render player's initial cards
+  renderHand(dealerHand, cardsContainerHTML[1]); // Render dealer's initial cards
+};
+
+/**
+ * Renders the cards in a hand to a specified container
+ * @param {Array} hand - An array containing the cards to render
+ * @param {HTMLElement} container - The container element where the cards will be rendered
+ */
+const renderHand = (hand, container) => {
+  // Clean up the container before rendering the cards
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
+
+  hand.forEach(card => {
+    const cardImage = document.createElement('img');
+    cardImage.src = `assets/cards/${card}.png`;
+    cardImage.classList.add('card');
+    container.appendChild(cardImage);
+  });
+};
+
 //* Events
 // Event listener for the draw card button
 drawCardButton.addEventListener('click', () => {
   // Draw a card from the deck
   const card = drawCard();
-  // Log the drawn card to the console
-  console.log(card);
   // Add the drawn card to the player's hand
   playerHand.push(card);
+  // Render the updated player's hand on the UI
+  renderHand(playerHand, cardsContainerHTML[0]);
   // Calculate the player's score based on the current hand
   playerScore = calculateHandScore(playerHand);
   // Update the player's score display on the UI
   scoresHTML[0].innerText = playerScore;
 });
-
 startGame();
