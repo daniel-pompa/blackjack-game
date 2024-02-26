@@ -4,6 +4,8 @@ const suits = ['C', 'D', 'H', 'S']; // Array of card suits
 const specials = ['A', 'J', 'Q', 'K']; // Array of special card values
 let playerHand = []; // Initialize an empty array to hold player's hand
 let dealerHand = []; // Initialize an empty array to hold dealer's hand
+let playerScore = 0; // Initialize player's score to 0
+let dealerScore = 0; // Initialize dealer's score to 0
 
 //* Functions
 // Start the game by creating a deck of cards and dealing initial cards to player and dealer
@@ -63,7 +65,62 @@ const dealInitialCards = () => {
   console.log(`Mano del jugador: ${playerHand}`);
   // Display the dealer's hand in the console
   console.log(`Mano del crupier: ${dealerHand}`);
-  // TODO - Add code to calculate the total value of the player's adn dealer's hand
+  // Calculate the score of player and dealer hands
+  playerScore = calculateHandScore(playerHand);
+  dealerScore = calculateHandScore(dealerHand);
+  // TODO - Add code to display the scores on the UI
+  // Display the player's score in the console
+  console.log(`Puntuación del jugador: ${playerScore}`);
+  console.log(`Puntuación del crupier: ${dealerScore}`);
+};
+
+/**
+ * Function to determine the numerical value of a card
+ * @param {string} card - The card to evaluate
+ * @returns {number} - The numerical value of the card
+ */
+const getCardValue = card => {
+  // Extract the value part of the card (excluding the suit)
+  const value = card.slice(0, -1);
+
+  // Determine the numerical value of the card based on its value part
+  // If the value part is not a number, it's a special card (A, J, Q, K)
+  // Aces (A) are assigned a value of 11, while face cards (J, Q, K) are assigned a value of 10
+  // Numeric cards are assigned a value based on their numeric value
+  return isNaN(value) ? (value === 'A' ? 11 : 10) : Number(value);
+};
+
+/**
+ * Function to calculate the score of a hand in a blackjack game
+ * Aces can have a value of 1 or 11, and face cards (J, Q, K) have a value of 10
+ * @param {array} hand - An array containing the cards in the hand
+ * @returns {number} - The total score of the hand
+ */
+const calculateHandScore = hand => {
+  let totalScore = 0;
+  let numberOfAces = 0;
+
+  // Calculate total score and count Aces
+  hand.forEach(card => {
+    if (isAce(card)) numberOfAces++;
+    totalScore += getCardValue(card);
+  });
+
+  // Adjust score for Aces
+  for (let i = 0; i < numberOfAces; i++) {
+    if (totalScore > 21) totalScore -= 10; // If adding 11 would exceed 21, use Ace as 1
+  }
+
+  return totalScore;
+};
+
+/**
+ * Function to check if a card is an Ace
+ * @param {string} card - The card to evaluate
+ * @returns {boolean} - True if the card is an Ace, false otherwise
+ */
+const isAce = card => {
+  return card.startsWith('A');
 };
 
 startGame();
