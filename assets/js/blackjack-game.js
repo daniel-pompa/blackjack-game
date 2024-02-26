@@ -14,6 +14,7 @@ const startGame = () => {
   createDeck();
   // Call the function to deal initial cards to player and dealer
   dealInitialCards();
+  drawCard();
 };
 
 /**
@@ -93,7 +94,7 @@ const getCardValue = card => {
 /**
  * Function to calculate the score of a hand in a blackjack game
  * Aces can have a value of 1 or 11, and face cards (J, Q, K) have a value of 10
- * @param {array} hand - An array containing the cards in the hand
+ * @param {Array} hand - An array containing the cards in the hand
  * @returns {number} - The total score of the hand
  */
 const calculateHandScore = hand => {
@@ -121,6 +122,20 @@ const calculateHandScore = hand => {
  */
 const isAce = card => {
   return card.startsWith('A');
+};
+
+// Function to draw a card from the deck
+const drawCard = () => {
+  // Check if the deck is empty
+  if (deck.length === 0) {
+    throw new Error('No hay cartas en la baraja');
+  }
+  const card = deck.pop();
+  playerHand.push(card);
+  console.log(`Carta del jugador: ${card}`);
+  console.log(`Mano del jugador: ${playerHand}`);
+  console.log(`Puntuación del jugador: ${calculateHandScore(playerHand)}`);
+  return card;
 };
 
 startGame();
