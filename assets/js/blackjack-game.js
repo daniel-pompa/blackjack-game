@@ -9,6 +9,7 @@ let dealerScore = 0; // Initialize dealer's score to 0
 
 //* HTML references
 const scoresHTML = document.querySelectorAll('span');
+const standButton = document.querySelector('#stand-button');
 const drawCardButton = document.querySelector('#draw-card-button');
 const cardsContainerHTML = document.querySelectorAll('.cards-container');
 
@@ -72,6 +73,14 @@ const dealInitialCards = () => {
 
   scoresHTML[0].innerText = playerScore; // Display player's score on the UI
   scoresHTML[1].innerText = dealerScore; // Display dealer's score on the UI
+
+  // Check if player has a Blackjack
+  if (playerScore === 21) {
+    // Disable interaction buttons to prevent further actions
+    drawCardButton.disabled = true;
+    standButton.disabled = true;
+    dealerTurn(playerScore);
+  }
 };
 
 /**
@@ -162,8 +171,40 @@ const renderHand = (hand, container) => {
   });
 };
 
+// Function to handle the player standing in the game
+const stand = () => {
+  // Disable interaction buttons to prevent further actions
+  drawCardButton.disabled = true;
+  standButton.disabled = true;
+  // If the dealer's score is already higher than the player's, return without further action
+  if (dealerScore > playerScore) return;
+  // Proceed with the dealer's turn if the player's score is not higher
+  dealerTurn(playerScore);
+};
+
+/**
+ * Function to manage the dealer's turn in the game
+ * @param {number} minScore - The minimum score the dealer must reach
+ */
+const dealerTurn = minScore => {
+  do {
+    // Draw a card from the deck
+    const card = deck.pop();
+    // Add the card to the dealer's hand
+    dealerHand.push(card);
+    // Render the dealer's hand on the UI
+    renderHand(dealerHand, cardsContainerHTML[1]);
+    // Recalculate the dealer's score
+    dealerScore = calculateHandScore(dealerHand);
+    // Update the dealer's score on the UI
+    scoresHTML[1].innerText = dealerScore;
+    // If the minimum score exceeds 21, stop drawing cards
+    if (minScore > 21) break;
+  } while (dealerScore < minScore && minScore <= 21);
+};
+
 //* Events
-// Event listener for the draw card button
+// Add event listener for the draw card button
 drawCardButton.addEventListener('click', () => {
   // Draw a card from the deck
   const card = drawCard();
@@ -175,5 +216,21 @@ drawCardButton.addEventListener('click', () => {
   playerScore = calculateHandScore(playerHand);
   // Update the player's score display on the UI
   scoresHTML[0].innerText = playerScore;
+  // If the player's score exceeds 21, the player has lost
+  if (playerScore > 21) {
+    // Disable interaction buttons to prevent further actions
+    drawCardButton.disabled = true;
+    standButton.disabled = true;
+  } // Check if player's score is equal to 21
+  else if (playerScore === 21) {
+    // Disable interaction buttons to prevent further actions
+    drawCardButton.disabled = true;
+    standButton.disabled = true;
+    dealerTurn(playerScore);
+  }
 });
+
+// Add event listener to the stand button
+standButton.addEventListener('click', stand);
+
 startGame();
