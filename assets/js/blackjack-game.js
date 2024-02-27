@@ -8,7 +8,7 @@ let playerScore = 0; // Initialize player's score to 0
 let dealerScore = 0; // Initialize dealer's score to 0
 
 //* HTML references
-const scoresHTML = document.querySelectorAll('span');
+const [playerScoreHTML, dealerScoreHTML] = document.querySelectorAll('span');
 const standButton = document.querySelector('#stand-button');
 const drawCardButton = document.querySelector('#draw-card-button');
 const cardsContainerHTML = document.querySelectorAll('.cards-container');
@@ -16,8 +16,6 @@ const cardsContainerHTML = document.querySelectorAll('.cards-container');
 //* Functions
 // Start the game by creating a deck of cards and dealing initial cards to player and dealer
 const startGame = () => {
-  // Call the function to create a deck of cards
-  createDeck();
   // Call the function to deal initial cards to player and dealer
   dealInitialCards();
 };
@@ -39,8 +37,7 @@ const createDeck = () => {
       deck.push(special + suit); // Add special card and suit to deck
     }
   }
-  // Call the shuffleDeck function and return the shuffled deck
-  return shuffleDeck(deck);
+  return deck;
 };
 
 /**
@@ -61,6 +58,8 @@ const shuffleDeck = deck => {
 
 // Function to deal initial cards to the player and the dealer
 const dealInitialCards = () => {
+  deck = createDeck();
+  shuffleDeck(deck);
   // Deal 2 cards to the player and the dealer
   for (let i = 0; i < 2; i++) {
     playerHand.push(deck.pop()); // Add a card from the deck to the player's hand
@@ -71,15 +70,17 @@ const dealInitialCards = () => {
   playerScore = calculateHandScore(playerHand); // Calculate the score of the player's hand
   dealerScore = calculateHandScore(dealerHand); // Calculate the score of the dealer's hand
 
-  scoresHTML[0].innerText = playerScore; // Display player's score on the UI
-  scoresHTML[1].innerText = dealerScore; // Display dealer's score on the UI
+  playerScoreHTML.innerText = playerScore; // Display player's score on the UI
+  dealerScoreHTML.innerText = dealerScore; // Display dealer's score on the UI
 
   // Check if player has a Blackjack
   if (playerScore === 21) {
     // Disable interaction buttons to prevent further actions
     drawCardButton.disabled = true;
     standButton.disabled = true;
-    dealerTurn(playerScore);
+    setTimeout(() => {
+      dealerTurn(playerScore);
+    }, 1000);
   }
 };
 
@@ -176,8 +177,10 @@ const stand = () => {
   // Disable interaction buttons to prevent further actions
   drawCardButton.disabled = true;
   standButton.disabled = true;
-  // If the dealer's score is already higher than the player's, return without further action
-  if (dealerScore > playerScore) return;
+  if (dealerScore > playerScore) {
+    determineWinner(playerScore, dealerScore);
+    return;
+  }
   // Proceed with the dealer's turn if the player's score is not higher
   dealerTurn(playerScore);
 };
@@ -197,10 +200,51 @@ const dealerTurn = minScore => {
     // Recalculate the dealer's score
     dealerScore = calculateHandScore(dealerHand);
     // Update the dealer's score on the UI
-    scoresHTML[1].innerText = dealerScore;
+    dealerScoreHTML.innerText = dealerScore;
     // If the minimum score exceeds 21, stop drawing cards
     if (minScore > 21) break;
   } while (dealerScore < minScore && minScore <= 21);
+
+  determineWinner(playerScore, dealerScore);
+};
+
+/**
+ * Function to display a message using an alert dialog after a delay
+ * @param {string} message - The message to display
+ * @param {number} delay - The delay in milliseconds before displaying the message
+ */
+const showMessageWithDelay = (message, delay) => {
+  setTimeout(() => {
+    alert(message); // Display alert with the message
+  }, delay);
+};
+
+/**
+ * Function to determine the winner of a blackjack game
+ * @param {number} playerScore - The score of the player
+ * @param {number} dealerScore - The score of the dealer
+ */
+const determineWinner = (playerScore, dealerScore) => {
+  // Check if player's score is over 21
+  if (playerScore > 21) {
+    showMessageWithDelay('¡El jugador se pasa!. El ordenador gana.', 500);
+  }
+  // Check if dealer's score is over 21
+  else if (dealerScore > 21) {
+    showMessageWithDelay('¡El ordenador se pasa! El jugador gana.', 500);
+  }
+  // Check if player has a higher score than the dealer
+  else if (playerScore > dealerScore) {
+    showMessageWithDelay('¡El jugador gana!', 500);
+  }
+  // Check if dealer has a higher score than the player
+  else if (dealerScore > playerScore) {
+    showMessageWithDelay('¡El ordenador gana!', 500);
+  }
+  // If none of the above conditions are met, it's a tie
+  else {
+    showMessageWithDelay('¡Es un empate!', 500);
+  }
 };
 
 //* Events
@@ -215,12 +259,13 @@ drawCardButton.addEventListener('click', () => {
   // Calculate the player's score based on the current hand
   playerScore = calculateHandScore(playerHand);
   // Update the player's score display on the UI
-  scoresHTML[0].innerText = playerScore;
+  playerScoreHTML.innerText = playerScore;
   // If the player's score exceeds 21, the player has lost
   if (playerScore > 21) {
     // Disable interaction buttons to prevent further actions
     drawCardButton.disabled = true;
     standButton.disabled = true;
+    determineWinner(playerScore, dealerScore);
   } // Check if player's score is equal to 21
   else if (playerScore === 21) {
     // Disable interaction buttons to prevent further actions
