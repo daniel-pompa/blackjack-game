@@ -11,6 +11,7 @@ let dealerScore = 0; // Initialize dealer's score to 0
 const [playerScoreHTML, dealerScoreHTML] = document.querySelectorAll('span');
 const standButton = document.querySelector('#stand-button');
 const drawCardButton = document.querySelector('#draw-card-button');
+const newGameButton = document.querySelector('#new-game-button');
 const cardsContainerHTML = document.querySelectorAll('.cards-container');
 
 //* Functions
@@ -247,8 +248,31 @@ const determineWinner = (playerScore, dealerScore) => {
   }
 };
 
+// Funtion to reset the game
+const resetGame = () => {
+  // Reset the deck
+  deck = [];
+  // Reset the player's hand
+  playerHand = [];
+  // Reset the dealer's hand
+  dealerHand = [];
+  // Reset the player's score
+  playerScore = 0;
+  // Reset the dealer's score
+  dealerScore = 0;
+  // Reset the player's score display on the UI
+  playerScoreHTML.innerText = playerScore;
+  // Reset the dealer's score display on the UI
+  dealerScoreHTML.innerText = dealerScore;
+  // Reset the cards container on the UI
+  cardsContainerHTML.forEach(container => (container.innerHTML = ''));
+  // Enable interaction buttons
+  drawCardButton.disabled = false;
+  standButton.disabled = false;
+};
+
 //* Events
-// Add event listener for the draw card button
+// Add event listener to the draw card button
 drawCardButton.addEventListener('click', () => {
   // Draw a card from the deck
   const card = drawCard();
@@ -278,4 +302,13 @@ drawCardButton.addEventListener('click', () => {
 // Add event listener to the stand button
 standButton.addEventListener('click', stand);
 
+// Add event listener to the new game button
+newGameButton.addEventListener('click', () => {
+  // Reset the game
+  resetGame();
+  // Start a new game
+  startGame();
+});
+
+// Start the game when the page loads
 startGame();
