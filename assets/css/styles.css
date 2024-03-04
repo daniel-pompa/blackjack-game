@@ -6,12 +6,6 @@ body {
   font-size: 62.5%;
 }
 
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
-}
-
 /* Headings */
 h2 {
   font-size: calc(1.6rem + 0.5vw);
